@@ -118,7 +118,7 @@ export const store: Store<State> = createStore({
     triggerSave(state) {
       state.lastSaveAt = Date.now();
     },
-    hardReset(state) {
+    hardReset(_state) {
       if (localStorage.getItem('teaShopSave') !== null) {
         localStorage.removeItem('teaShopSave');
       }
