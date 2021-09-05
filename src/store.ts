@@ -4,6 +4,8 @@ import createPersistedState from 'vuex-persistedstate';
 type Purchasable = 'autobrewer';
 
 export type State = {
+  lastSaveAt: number;
+  tick: number;
   cupsOfTea: number;
   purchasables: {
     [key in Purchasable]: {
@@ -12,7 +14,6 @@ export type State = {
       increaseRate: number;
     }
   };
-  tick: number;
 };
 
 const BASE_PRICES = {
@@ -20,9 +21,18 @@ const BASE_PRICES = {
 };
 
 export const store: Store<State> = createStore({
-  plugins: [createPersistedState()],
+  plugins: [
+    createPersistedState({
+      key: 'teaShopSave',
+      // Only trigger saving when the triggerSave method is called.
+      filter: (mutation) => {
+        return mutation.type === 'triggerSave';
+      }
+    })
+  ],
   state() {
     return {
+      lastSaveAt: Date.now(),
       tick: 0,
       cupsOfTea: 0,
       purchasables: {
@@ -49,6 +59,9 @@ export const store: Store<State> = createStore({
     },
     increasePrice(state, purchasable: Purchasable) {
       state.purchasables[purchasable].price = Math.ceil(state.purchasables[purchasable].price * (1.0 + state.purchasables[purchasable].increaseRate));
+    },
+    triggerSave(state) {
+      state.lastSaveAt = Date.now();
     }
   },
   actions: {
@@ -56,6 +69,11 @@ export const store: Store<State> = createStore({
       context.commit('tick');
       // TODO: Make the tick rate less than a second and modify/call autobrew accordingly.
       context.dispatch('autobrew');
+
+      // Save every 30 seconds.
+      if (context.state.tick % 30 === 0) {
+        context.commit('triggerSave');
+      }
     },
     brewTea(context) {
       context.commit('brewTea');
