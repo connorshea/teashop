@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { State } from '../store';
+import { PRICES, State } from '../store';
 
 export default defineComponent({
   props: {
@@ -12,12 +12,19 @@ export default defineComponent({
   },
   setup(_props, _context) {
     const store = useStore<State>();
-    const currency = computed(() => store.state.currency);
+    const cupsOfTea = computed(() => store.state.cupsOfTea);
+    const autobrewerCount = computed(() => store.state.purchases.autobrewers);
     const increment = () => store.dispatch('increment');
 
+    const autobrewerCost = PRICES.autobrewer;
+    const buyAutobrewer = () => store.dispatch('buyAutobrewer');
+
     return {
-      currency,
-      increment
+      cupsOfTea,
+      autobrewerCount,
+      autobrewerCost,
+      increment,
+      buyAutobrewer
     };
   },
 });
@@ -26,12 +33,16 @@ export default defineComponent({
 <template>
   <h1>{{ msg }}</h1>
 
-  <p>{{ currency }} {{ $filters.pluralize(currency, 'Foo') }}</p>
+  <p>{{ cupsOfTea }} {{ $filters.pluralize(currency, 'Cup') }} of Tea</p>
+  <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
-  <button type="button" @click="increment">Create Foo</button>
+  <div class="buttons">
+    <button type="button" @click="increment">Brew a cup of tea</button>
+    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer">Buy an autobrewer</button>
+  </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 a {
   color: #42b983;
 }
@@ -46,5 +57,19 @@ code {
   padding: 2px 4px;
   border-radius: 4px;
   color: #304455;
+}
+
+.buttons {
+  display: flex;
+  flex-flow: row wrap;
+  margin: auto;
+  width: 200px;
+
+  button {
+    margin: auto;
+    margin-top: 5px;
+    display: block;
+    width: 175px;
+  }
 }
 </style>

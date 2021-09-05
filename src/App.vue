@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <IdleGame msg="Idle Game" />
+  <IdleGame msg="Tea Shop" />
 </template>
 
 <style>
