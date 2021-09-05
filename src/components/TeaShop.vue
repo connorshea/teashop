@@ -1,22 +1,26 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { State, TICK_RATE } from '../store';
+import { State, TICKS_PER_SECOND, TICK_RATE } from '../store';
 
 export default defineComponent({
   setup(_props, _context) {
     const store = useStore<State>();
     const cupsOfTea = computed(() => store.state.cupsOfTea);
+    const teaPerSecond = computed(() => Math.round(store.state.teaPerTick * TICKS_PER_SECOND));
     const roundedCupsOfTea = computed(() => Math.round(store.state.cupsOfTea));
-    const autobrewerCount = computed(() => store.state.purchasables.autobrewer.count);
+    const autobrewerCount = computed(() => store.state.purchases.autobrewer.count);
 
     const brewTea = () => store.dispatch('brewTea');
 
-    const autobrewerCost = computed(() => store.state.purchasables.autobrewer.price);
-    const buyAutobrewer = (amount: number) => store.dispatch('buyAutobrewer', { amount: amount });
+    const autobrewerCost = computed(() => store.state.purchases.autobrewer.price);
     const multipleAutobrewerCost = computed(() => {
-      return (amount: number) => Math.round(autobrewerCost.value * ((1 - Math.pow(store.state.purchasables.autobrewer.increaseRate, amount)) / (1 - store.state.purchasables.autobrewer.increaseRate)));
+      return (amount: number) => Math.round(autobrewerCost.value * ((1 - Math.pow(store.state.purchases.autobrewer.increaseRate, amount)) / (1 - store.state.purchases.autobrewer.increaseRate)));
     });
+    const autobrewerUpgradeCost = computed(() => store.state.upgrades.autobrewer.nextUpgradeCost);
+
+    const buyAutobrewer = (amount: number) => store.dispatch('buyAutobrewer', { amount: amount });
+    const upgradeAutobrewer = () => store.dispatch('upgradeUpgradable', { upgradable: 'autobrewer' });
 
     const updateGameState = () => {
       if (store.state.debugMode) {
@@ -40,12 +44,15 @@ export default defineComponent({
 
     return {
       cupsOfTea,
+      teaPerSecond,
       roundedCupsOfTea,
       autobrewerCount,
       autobrewerCost,
       multipleAutobrewerCost,
+      autobrewerUpgradeCost,
       brewTea,
       buyAutobrewer,
+      upgradeAutobrewer,
       hardResetGame,
       debugMode,
       toggleDebugMode,
@@ -59,18 +66,29 @@ export default defineComponent({
   <h1>Tea Shop</h1>
 
   <p>{{ roundedCupsOfTea }} {{ $filters.pluralize(roundedCupsOfTea, 'Cup') }} of Tea</p>
+  <p>({{ teaPerSecond }} {{ $filters.pluralize(teaPerSecond, 'cup') }}/sec)</p>
   <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
   <div class="buttons">
     <button type="button" @click="brewTea">
       Brew a cup of tea
     </button>
-    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer(1)">
+    <button type="button" :disabled="cupsOfTea < Math.ceil(autobrewerCost)" @click="buyAutobrewer(1)">
       Buy an autobrewer ({{ Math.round(autobrewerCost) }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
     </button>
-    <button type="button" :disabled="cupsOfTea < multipleAutobrewerCost(10)" @click="buyAutobrewer(10)">
+    <button type="button" :disabled="cupsOfTea < Math.ceil(multipleAutobrewerCost(10))" @click="buyAutobrewer(10)">
       Buy 10 autobrewers ({{ multipleAutobrewerCost(10) }} {{ $filters.pluralize(multipleAutobrewerCost(10), 'cup') }})
     </button>
+  </div>
+
+  <br/>
+  <div>
+    <h4>Upgrades</h4>
+    <div class="buttons">
+      <button type="button" :disabled="cupsOfTea < Math.ceil(autobrewerUpgradeCost)" @click="upgradeAutobrewer">
+        Upgrade autobrewers ({{ autobrewerUpgradeCost }} {{ $filters.pluralize(autobrewerUpgradeCost, 'cup') }})
+      </button>
+    </div>
   </div>
 
   <br/>
