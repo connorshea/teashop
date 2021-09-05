@@ -8,7 +8,7 @@ export type State = {
 };
 
 export const PRICES = {
-  autobrewer: 30
+  autobrewer: 20
 };
 
 export const store: Store<State> = createStore({

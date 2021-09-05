@@ -33,7 +33,7 @@ export default defineComponent({
 <template>
   <h1>{{ msg }}</h1>
 
-  <p>{{ cupsOfTea }} {{ $filters.pluralize(currency, 'Cup') }} of Tea</p>
+  <p>{{ cupsOfTea }} {{ $filters.pluralize(cupsOfTea, 'Cup') }} of Tea</p>
   <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
   <div class="buttons">
