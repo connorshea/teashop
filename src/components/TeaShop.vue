@@ -2,8 +2,13 @@
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
 import { State, TICKS_PER_SECOND, TICK_RATE } from '../store';
+import Options from './Options.vue';
 
 export default defineComponent({
+  name: 'TeaShop',
+  components: {
+    Options
+  },
   setup(_props, _context) {
     const store = useStore<State>();
     const cupsOfTea = computed(() => store.state.cupsOfTea);
@@ -29,16 +34,6 @@ export default defineComponent({
       store.dispatch('tick');
     };
 
-    const hardResetGame = () => {
-      if (confirm('This will permanently erase ALL your progress, nothing will be persisted. Are you absolutely sure you want to reset your game?')) {
-        store.commit('hardReset');
-      }
-    };
-
-    const debugMode = computed(() => store.state.debugMode);
-    const toggleDebugMode = () => store.commit('toggleDebugMode');
-    const saveGame = () => store.commit('triggerSave');
-
     // This probably won't scale later. YOLO.
     setInterval(updateGameState, TICK_RATE);
 
@@ -52,11 +47,7 @@ export default defineComponent({
       autobrewerUpgradeCost,
       brewTea,
       buyAutobrewer,
-      upgradeAutobrewer,
-      hardResetGame,
-      debugMode,
-      toggleDebugMode,
-      saveGame
+      upgradeAutobrewer
     };
   },
 });
@@ -93,21 +84,7 @@ export default defineComponent({
 
   <br/>
   <br/>
-  <br/>
-  <div>
-    <h4>Options</h4>
-    <div class="buttons">
-      <button type="button" @click="saveGame">
-        Save Game
-      </button>
-      <button type="button" @click="hardResetGame">
-        Hard Reset
-      </button>
-      <button type="button" @click="toggleDebugMode">
-        {{ debugMode === true ? 'Disable Debug Mode' : 'Enable Debug Mode' }}
-      </button>
-    </div>
-  </div>
+  <Options />
 </template>
 
 <style scoped lang="scss">
