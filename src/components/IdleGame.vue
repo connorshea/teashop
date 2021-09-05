@@ -26,7 +26,7 @@ export default defineComponent({
 <template>
   <h1>{{ msg }}</h1>
 
-  <p>{{ currency }} Foos</p>
+  <p>{{ currency }} {{ $filters.pluralize(currency, 'Foo') }}</p>
 
   <button type="button" @click="increment">Create Foo</button>
 </template>
