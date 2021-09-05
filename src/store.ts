@@ -4,7 +4,7 @@ import createPersistedState from 'vuex-persistedstate';
 type Purchasable = 'autobrewer';
 
 export type State = {
-  lastSaveAt: number;
+  lastSaveAt: number | null;
   tick: number;
   cupsOfTea: number;
   purchasables: {
@@ -20,6 +20,20 @@ const BASE_PRICES = {
   autobrewer: 10
 };
 
+// The state of the game when the game starts or is manually reset.
+const DEFAULT_GAME_STATE = {
+  lastSaveAt: null,
+  tick: 0,
+  cupsOfTea: 0,
+  purchasables: {
+    autobrewer: {
+      count: 0,
+      price: BASE_PRICES.autobrewer,
+      increaseRate: 0.04
+    }
+  }
+};
+
 export const store: Store<State> = createStore({
   plugins: [
     createPersistedState({
@@ -31,18 +45,7 @@ export const store: Store<State> = createStore({
     })
   ],
   state() {
-    return {
-      lastSaveAt: Date.now(),
-      tick: 0,
-      cupsOfTea: 0,
-      purchasables: {
-        autobrewer: {
-          count: 0,
-          price: BASE_PRICES.autobrewer,
-          increaseRate: 0.04
-        }
-      }
-    }
+    return DEFAULT_GAME_STATE;
   },
   mutations: {
     tick(state) {
@@ -62,6 +65,10 @@ export const store: Store<State> = createStore({
     },
     triggerSave(state) {
       state.lastSaveAt = Date.now();
+    },
+    hardReset(state) {
+      localStorage.removeItem('teaShopSave');
+      Object.assign(state, DEFAULT_GAME_STATE);
     }
   },
   actions: {

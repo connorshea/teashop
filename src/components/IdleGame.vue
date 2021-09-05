@@ -17,6 +17,12 @@ export default defineComponent({
       store.dispatch('tick');
     };
 
+    const hardResetGame = () => {
+      if (confirm('This will permanently erase ALL your progress, nothing will be persisted. Are you absolutely sure you want to reset your game?')) {
+        store.commit('hardReset');
+      }
+    };
+
     // This probably won't scale later. YOLO.
     // TODO: Make this a shorter interval and modify logic in update game state to compensate.
     setInterval(updateGameState, 1000);
@@ -26,7 +32,8 @@ export default defineComponent({
       autobrewerCount,
       autobrewerCost,
       brewTea,
-      buyAutobrewer
+      buyAutobrewer,
+      hardResetGame
     };
   },
 });
@@ -45,6 +52,18 @@ export default defineComponent({
     <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer">
       Buy an autobrewer ({{ autobrewerCost }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
     </button>
+  </div>
+
+  <br/>
+  <br/>
+  <br/>
+  <div>
+    <h4>Options</h4>
+    <div class="buttons">
+      <button type="button" @click="hardResetGame">
+        Hard Reset
+      </button>
+    </div>
   </div>
 </template>
 
