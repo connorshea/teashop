@@ -4,11 +4,12 @@ import createPersistedState from 'vuex-persistedstate';
 type Purchasable = 'autobrewer';
 
 // How often ticks happen, in milliseconds.
-export const TICK_RATE = 100;
+export const TICK_RATE = 200;
 const TICKS_PER_SECOND = 1000 / TICK_RATE;
 
 export type State = {
   lastSaveAt: number | null;
+  lastNotableTickAt: number | null;
   tick: number;
   cupsOfTea: number;
   purchasables: {
@@ -26,18 +27,21 @@ const BASE_PRICES = {
 };
 
 // The state of the game when the game starts or is manually reset.
-const DEFAULT_GAME_STATE = {
-  lastSaveAt: null,
-  tick: 0,
-  cupsOfTea: 0,
-  purchasables: {
-    autobrewer: {
-      count: 0,
-      price: BASE_PRICES.autobrewer,
-      increaseRate: 1.04
-    }
-  },
-  debugMode: false
+const getDefaultGameState = () => {
+  return {
+    lastSaveAt: null,
+    lastNotableTickAt: null,
+    tick: 0,
+    cupsOfTea: 0,
+    purchasables: {
+      autobrewer: {
+        count: 0,
+        price: BASE_PRICES.autobrewer,
+        increaseRate: 1.04
+      }
+    },
+    debugMode: false
+  };
 };
 
 export const store: Store<State> = createStore({
@@ -51,7 +55,7 @@ export const store: Store<State> = createStore({
     })
   ],
   state() {
-    return DEFAULT_GAME_STATE;
+    return getDefaultGameState();
   },
   mutations: {
     tick(state) {
@@ -76,8 +80,10 @@ export const store: Store<State> = createStore({
       state.lastSaveAt = Date.now();
     },
     hardReset(state) {
-      localStorage.removeItem('teaShopSave');
-      Object.assign(state, DEFAULT_GAME_STATE);
+      if (localStorage.getItem('teaShopSave') !== null) {
+        localStorage.removeItem('teaShopSave');
+      }
+      store.replaceState(getDefaultGameState());
     },
     toggleDebugMode(state) {
       state.debugMode = !state.debugMode;
@@ -85,6 +91,15 @@ export const store: Store<State> = createStore({
   },
   actions: {
     tick(context) {
+      if (context.state.tick % TICKS_PER_SECOND === 0) {
+        let now = Date.now();
+        if (context.state.debugMode && context.state.lastNotableTickAt !== null) {
+          console.log(`${now - context.state.lastNotableTickAt}ms since last notable tick.`);
+          console.log(`${context.state.cupsOfTea} cups of tea`);
+        }
+        context.state.lastNotableTickAt = now;
+      }
+
       context.commit('tick');
       context.dispatch('autobrew');
 
