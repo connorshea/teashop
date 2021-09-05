@@ -42,7 +42,7 @@ const BASE_VALUES = {
   },
   upgrades: {
     autobrewer: {
-      outputMultiplier: 1.5,
+      outputMultiplier: 2.0,
       costMultiplier: 10,
       nextUpgradeCost: 100
     }
