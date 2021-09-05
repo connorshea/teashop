@@ -114,6 +114,7 @@ export const store: Store<State> = createStore({
       state.upgrades[payload.upgradable].currentOutputMultiplier *= state.upgrades[payload.upgradable].outputMultiplier;
       state.upgrades[payload.upgradable].nextUpgradeCost *= state.upgrades[payload.upgradable].costMultiplier;
     },
+    // This mutation automatically triggers the persisted state plugin to activate.
     triggerSave(state) {
       state.lastSaveAt = Date.now();
     },
