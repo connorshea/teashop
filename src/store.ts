@@ -97,7 +97,8 @@ export const store: Store<State> = createStore({
       context.commit('brewTea');
     },
     buyAutobrewer(context, { amount }) {
-      let price = context.state.purchasables.autobrewer.price * (1 - Math.pow(context.state.purchasables.autobrewer.increaseRate, amount)) / (1 - context.state.purchasables.autobrewer.increaseRate);
+      let increaseRate = context.state.purchasables.autobrewer.increaseRate;
+      let price = context.state.purchasables.autobrewer.price * (1 - Math.pow(increaseRate, amount)) / (1 - increaseRate);
       context.commit('consumeTea', price);
       context.commit('increasePrice', { purchasable: 'autobrewer', amount: amount });
       context.commit('buyAutobrewer', amount);

@@ -1,11 +1,15 @@
-# Vue 3 + Typescript + Vite
+# Tea Shop
 
-This template should help get you started developing with Vue 3 and Typescript in Vite.
+This is a simple little idle game I've made out of sheer boredom. It's very simple so far, so don't expect much. I also don't guarantee compatibility with saves as it's developed.
 
-## Recommended IDE Setup
+## Contributing
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+This uses the "Vue 3 + Typescript + Vite" template from Vite.
 
-## Type Support For `.vue` Imports in TS
+To get started:
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's `.vue` type support plugin by running `Volar: Switch TS Plugin on/off` from VSCode command palette.
+- Clone the repo.
+- Run `yarn install` to install packages.
+- Run `yarn run dev` to boot the server.
+- Open http://localhost:3000 in a browser
+- That's it!
