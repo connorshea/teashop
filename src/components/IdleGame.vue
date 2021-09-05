@@ -1,29 +1,32 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { PRICES, State } from '../store';
+import { State } from '../store';
 
 export default defineComponent({
-  props: {
-    msg: {
-      type: String,
-      required: true
-    },
-  },
   setup(_props, _context) {
     const store = useStore<State>();
     const cupsOfTea = computed(() => store.state.cupsOfTea);
-    const autobrewerCount = computed(() => store.state.purchases.autobrewers);
-    const increment = () => store.dispatch('increment');
+    const autobrewerCount = computed(() => store.state.purchasables.autobrewer.count);
+    const brewTea = () => store.dispatch('brewTea');
 
-    const autobrewerCost = PRICES.autobrewer;
+    const autobrewerCost = computed(() => store.state.purchasables.autobrewer.price);
     const buyAutobrewer = () => store.dispatch('buyAutobrewer');
+
+    const updateGameState = () => {
+      if (autobrewerCount.value > 0) {
+        store.dispatch('autobrew');
+      }
+    };
+
+    // This probably won't scale later. YOLO.
+    setInterval(updateGameState, 1000);
 
     return {
       cupsOfTea,
       autobrewerCount,
       autobrewerCost,
-      increment,
+      brewTea,
       buyAutobrewer
     };
   },
@@ -31,14 +34,18 @@ export default defineComponent({
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <h1>Tea Shop</h1>
 
   <p>{{ cupsOfTea }} {{ $filters.pluralize(cupsOfTea, 'Cup') }} of Tea</p>
   <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
   <div class="buttons">
-    <button type="button" @click="increment">Brew a cup of tea</button>
-    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer">Buy an autobrewer</button>
+    <button type="button" @click="brewTea">
+      Brew a cup of tea
+    </button>
+    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer">
+      Buy an autobrewer ({{ autobrewerCost }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
+    </button>
   </div>
 </template>
 
@@ -63,13 +70,13 @@ code {
   display: flex;
   flex-flow: row wrap;
   margin: auto;
-  width: 200px;
+  width: 250px;
 
   button {
     margin: auto;
     margin-top: 5px;
     display: block;
-    width: 175px;
+    width: 250px;
   }
 }
 </style>
