@@ -14,12 +14,11 @@ export default defineComponent({
     const buyAutobrewer = () => store.dispatch('buyAutobrewer');
 
     const updateGameState = () => {
-      if (autobrewerCount.value > 0) {
-        store.dispatch('autobrew');
-      }
+      store.dispatch('tick');
     };
 
     // This probably won't scale later. YOLO.
+    // TODO: Make this a shorter interval and modify logic in update game state to compensate.
     setInterval(updateGameState, 1000);
 
     return {

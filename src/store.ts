@@ -1,4 +1,5 @@
 import { createStore, Store } from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 
 type Purchasable = 'autobrewer';
 
@@ -11,6 +12,7 @@ export type State = {
       increaseRate: number;
     }
   };
+  tick: number;
 };
 
 const BASE_PRICES = {
@@ -18,8 +20,10 @@ const BASE_PRICES = {
 };
 
 export const store: Store<State> = createStore({
+  plugins: [createPersistedState()],
   state() {
     return {
+      tick: 0,
       cupsOfTea: 0,
       purchasables: {
         autobrewer: {
@@ -31,6 +35,9 @@ export const store: Store<State> = createStore({
     }
   },
   mutations: {
+    tick(state) {
+      state.tick += 1;
+    },
     brewTea(state, amount = 1) {
       state.cupsOfTea += amount;
     },
@@ -45,6 +52,11 @@ export const store: Store<State> = createStore({
     }
   },
   actions: {
+    tick(context) {
+      context.commit('tick');
+      // TODO: Make the tick rate less than a second and modify/call autobrew accordingly.
+      context.dispatch('autobrew');
+    },
     brewTea(context) {
       context.commit('brewTea');
     },
