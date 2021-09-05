@@ -83,11 +83,10 @@ export const store: Store<State> = createStore({
   actions: {
     tick(context) {
       context.commit('tick');
-      // TODO: Make the tick rate less than a second and modify/call autobrew accordingly.
       context.dispatch('autobrew');
 
       // Save every 30 seconds.
-      if (context.state.tick % 30 === 0) {
+      if (context.state.tick % (TICKS_PER_SECOND * 30) === 0) {
         context.commit('triggerSave');
       }
     },
@@ -99,6 +98,7 @@ export const store: Store<State> = createStore({
       context.commit('increasePrice', 'autobrewer');
       context.commit('buyAutobrewer');
     },
+    // Brew based on the number of autobrewers we have, divided by the number of ticks that occur per second.
     autobrew(context) {
       context.commit('brewTea', context.state.purchasables.autobrewer.count / TICKS_PER_SECOND);
     }

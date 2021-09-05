@@ -9,6 +9,7 @@ export default defineComponent({
     const cupsOfTea = computed(() => store.state.cupsOfTea);
     const roundedCupsOfTea = computed(() => Math.round(store.state.cupsOfTea));
     const autobrewerCount = computed(() => store.state.purchasables.autobrewer.count);
+
     const brewTea = () => store.dispatch('brewTea');
 
     const autobrewerCost = computed(() => store.state.purchasables.autobrewer.price);
@@ -29,6 +30,7 @@ export default defineComponent({
 
     const debugMode = computed(() => store.state.debugMode);
     const toggleDebugMode = () => store.commit('toggleDebugMode');
+    const saveGame = () => store.commit('triggerSave');
 
     // This probably won't scale later. YOLO.
     setInterval(updateGameState, TICK_RATE);
@@ -42,7 +44,8 @@ export default defineComponent({
       buyAutobrewer,
       hardResetGame,
       debugMode,
-      toggleDebugMode
+      toggleDebugMode,
+      saveGame
     };
   },
 });
@@ -69,6 +72,9 @@ export default defineComponent({
   <div>
     <h4>Options</h4>
     <div class="buttons">
+      <button type="button" @click="saveGame">
+        Save Game
+      </button>
       <button type="button" @click="hardResetGame">
         Hard Reset
       </button>
