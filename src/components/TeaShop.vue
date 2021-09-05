@@ -13,7 +13,10 @@ export default defineComponent({
     const brewTea = () => store.dispatch('brewTea');
 
     const autobrewerCost = computed(() => store.state.purchasables.autobrewer.price);
-    const buyAutobrewer = () => store.dispatch('buyAutobrewer');
+    const buyAutobrewer = (amount: number) => store.dispatch('buyAutobrewer', { amount: amount });
+    const multipleAutobrewerCost = computed(() => {
+      return (amount: number) => Math.round(autobrewerCost.value * ((1 - Math.pow(store.state.purchasables.autobrewer.increaseRate, amount)) / (1 - store.state.purchasables.autobrewer.increaseRate)));
+    });
 
     const updateGameState = () => {
       if (store.state.debugMode) {
@@ -40,6 +43,7 @@ export default defineComponent({
       roundedCupsOfTea,
       autobrewerCount,
       autobrewerCost,
+      multipleAutobrewerCost,
       brewTea,
       buyAutobrewer,
       hardResetGame,
@@ -61,8 +65,11 @@ export default defineComponent({
     <button type="button" @click="brewTea">
       Brew a cup of tea
     </button>
-    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer">
-      Buy an autobrewer ({{ autobrewerCost }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
+    <button type="button" :disabled="cupsOfTea < autobrewerCost" @click="buyAutobrewer(1)">
+      Buy an autobrewer ({{ Math.round(autobrewerCost) }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
+    </button>
+    <button type="button" :disabled="cupsOfTea < multipleAutobrewerCost(10)" @click="buyAutobrewer(10)">
+      Buy 10 autobrewers ({{ multipleAutobrewerCost(10) }} {{ $filters.pluralize(multipleAutobrewerCost(10), 'cup') }})
     </button>
   </div>
 

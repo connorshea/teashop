@@ -34,7 +34,7 @@ const DEFAULT_GAME_STATE = {
     autobrewer: {
       count: 0,
       price: BASE_PRICES.autobrewer,
-      increaseRate: 0.04
+      increaseRate: 1.04
     }
   },
   debugMode: false
@@ -66,8 +66,11 @@ export const store: Store<State> = createStore({
     buyAutobrewer(state, amount = 1) {
       state.purchasables.autobrewer.count += amount;
     },
-    increasePrice(state, purchasable: Purchasable) {
-      state.purchasables[purchasable].price = Math.ceil(state.purchasables[purchasable].price * (1.0 + state.purchasables[purchasable].increaseRate));
+    increasePrice(state, payload: { purchasable: Purchasable, amount: number | null }) {
+      if (payload.amount === null) {
+        payload.amount = 1;
+      }
+      state.purchasables[payload.purchasable].price *= Math.pow(state.purchasables[payload.purchasable].increaseRate, payload.amount);
     },
     triggerSave(state) {
       state.lastSaveAt = Date.now();
@@ -93,10 +96,11 @@ export const store: Store<State> = createStore({
     brewTea(context) {
       context.commit('brewTea');
     },
-    buyAutobrewer(context) {
-      context.commit('consumeTea', context.state.purchasables.autobrewer.price);
-      context.commit('increasePrice', 'autobrewer');
-      context.commit('buyAutobrewer');
+    buyAutobrewer(context, { amount }) {
+      let price = context.state.purchasables.autobrewer.price * (1 - Math.pow(context.state.purchasables.autobrewer.increaseRate, amount)) / (1 - context.state.purchasables.autobrewer.increaseRate);
+      context.commit('consumeTea', price);
+      context.commit('increasePrice', { purchasable: 'autobrewer', amount: amount });
+      context.commit('buyAutobrewer', amount);
     },
     // Brew based on the number of autobrewers we have, divided by the number of ticks that occur per second.
     autobrew(context) {
