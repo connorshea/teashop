@@ -1,12 +1,13 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { State } from '../store';
+import { State, TICK_RATE } from '../store';
 
 export default defineComponent({
   setup(_props, _context) {
     const store = useStore<State>();
     const cupsOfTea = computed(() => store.state.cupsOfTea);
+    const roundedCupsOfTea = computed(() => Math.round(store.state.cupsOfTea));
     const autobrewerCount = computed(() => store.state.purchasables.autobrewer.count);
     const brewTea = () => store.dispatch('brewTea');
 
@@ -14,6 +15,9 @@ export default defineComponent({
     const buyAutobrewer = () => store.dispatch('buyAutobrewer');
 
     const updateGameState = () => {
+      if (store.state.debugMode) {
+        console.log(`${cupsOfTea.value} cups of tea, ${roundedCupsOfTea.value} rounded cups of tea`);
+      }
       store.dispatch('tick');
     };
 
@@ -23,17 +27,22 @@ export default defineComponent({
       }
     };
 
+    const debugMode = computed(() => store.state.debugMode);
+    const toggleDebugMode = () => store.commit('toggleDebugMode');
+
     // This probably won't scale later. YOLO.
-    // TODO: Make this a shorter interval and modify logic in update game state to compensate.
-    setInterval(updateGameState, 1000);
+    setInterval(updateGameState, TICK_RATE);
 
     return {
       cupsOfTea,
+      roundedCupsOfTea,
       autobrewerCount,
       autobrewerCost,
       brewTea,
       buyAutobrewer,
-      hardResetGame
+      hardResetGame,
+      debugMode,
+      toggleDebugMode
     };
   },
 });
@@ -42,7 +51,7 @@ export default defineComponent({
 <template>
   <h1>Tea Shop</h1>
 
-  <p>{{ cupsOfTea }} {{ $filters.pluralize(cupsOfTea, 'Cup') }} of Tea</p>
+  <p>{{ roundedCupsOfTea }} {{ $filters.pluralize(roundedCupsOfTea, 'Cup') }} of Tea</p>
   <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
   <div class="buttons">
@@ -62,6 +71,9 @@ export default defineComponent({
     <div class="buttons">
       <button type="button" @click="hardResetGame">
         Hard Reset
+      </button>
+      <button type="button" @click="toggleDebugMode">
+        {{ debugMode === true ? 'Disable Debug Mode' : 'Enable Debug Mode' }}
       </button>
     </div>
   </div>
