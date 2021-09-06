@@ -3,16 +3,28 @@
 self.onmessage = (e) => {
   if (e.data.name === 'tick') {
     const state = e.data.state;
+    const isNotableTick = state.tick % e.data.ticks_per_second === 0;
 
-    self.postMessage({ type: 'mutation', method: 'tick', payload: undefined });
-    self.postMessage({ type: 'action', method: 'autobrew', payload: undefined });
-    if (state.tick % e.data.ticks_per_second === 0) {
+    if (isNotableTick) {
       let now = Date.now();
       if (state.debugMode && state.lastNotableTickAt !== null) {
         console.log(`${now - state.lastNotableTickAt}ms since last notable tick.`);
         console.log(`${state.cupsOfTea} cups of tea`);
       }
       self.postMessage({ type: 'mutation', method: 'setLastNotableTickAt', payload: { datetime: now } });
+    }
+
+    self.postMessage({ type: 'mutation', method: 'tick', payload: undefined });
+    self.postMessage({ type: 'action', method: 'autobrew', payload: undefined });
+
+    if (isNotableTick) {
+      let teaSoldThisTick = state.rawDemand / state.teaPrice;
+      // Cap the amount sold to the amount of tea we have right now, to prevent selling more than we have.
+      if (teaSoldThisTick > state.cupsOfTea) {
+        teaSoldThisTick = state.cupsOfTea;
+      }
+      // Calculate tea sold this tick and then sell it
+      self.postMessage({ type: 'action', method: 'sellTea', payload: { amount: teaSoldThisTick } });
     }
 
     // Autosave every 30 seconds.
