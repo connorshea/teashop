@@ -16,8 +16,7 @@ export default defineComponent({
     const roundedCupsOfTea = computed(() => Math.round(store.state.cupsOfTea));
     const autobrewerCount = computed(() => store.state.purchases.autobrewer.count);
     const money = computed(() => store.state.money);
-    const roundedMoney = computed(() => store.state.money.toFixed(2));
-    const teaPrice = computed(() => store.state.teaPrice.toFixed(2));
+    const teaPrice = computed(() => store.state.teaPrice);
     const roundedTeaPrice = computed(() => store.state.teaPrice.toFixed(2));
     const demand = computed(() => (store.state.rawDemand / (store.state.teaPrice * 100)).toFixed(2));
 
@@ -42,7 +41,6 @@ export default defineComponent({
       teaPerSecond,
       roundedCupsOfTea,
       money,
-      roundedMoney,
       teaPrice,
       roundedTeaPrice,
       demand,
@@ -63,7 +61,7 @@ export default defineComponent({
 <template>
   <h1>Tea Shop</h1>
 
-  <p>${{ $filters.humanize(roundedMoney, { short: true }) }}</p>
+  <p>${{ $filters.humanize(money, { short: true, money: true }) }}</p>
   <p>Price for a Cup of Tea: ${{ roundedTeaPrice }}</p>
   <p>Demand: {{ demand }}%</p>
   <p>{{ $filters.humanize(roundedCupsOfTea, { short: true }) }} {{ $filters.pluralize(roundedCupsOfTea, 'Cup') }} of Tea</p>

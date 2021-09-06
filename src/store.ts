@@ -65,9 +65,9 @@ const getDefaultGameState = () => {
     tick: 0,
     money: 0,
     cupsOfTea: 0,
-    teaPrice: 0.30,
+    teaPrice: 2.00,
     teaPerTick: 0,
-    rawDemand: 30,
+    rawDemand: 50,
     purchases: {
       autobrewer: {
         count: 0,

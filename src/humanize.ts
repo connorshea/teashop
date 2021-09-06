@@ -91,12 +91,14 @@ const UNIT_SHORT_NAMES = [
 
 export type HumanizeOptions = {
   short: boolean,
-  lowercase: boolean
+  lowercase: boolean,
+  money: boolean
 }
 
 const DEFAULT_OPTIONS: HumanizeOptions = {
   short: false,
-  lowercase: false
+  lowercase: false,
+  money: false
 }
 
 /**
@@ -114,6 +116,10 @@ export const humanize = (value: number, options?: Partial<HumanizeOptions>): str
   const opts: HumanizeOptions = options ? { ...DEFAULT_OPTIONS, ...options } : DEFAULT_OPTIONS;
 
   const units = opts.short ? UNIT_SHORT_NAMES : UNIT_NAMES;
+
+  if (opts.money && value < 1000) {
+    return value.toFixed(2);
+  }
 
   return millify(value, {
     precision: 2,
