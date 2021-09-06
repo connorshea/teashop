@@ -7,6 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "millify": "^4.0.0",
     "vue": "^3.2.6",
     "vuex": "^4.0.2",

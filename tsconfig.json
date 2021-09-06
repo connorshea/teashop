@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
+    "allowJs": true,
     "strictPropertyInitialization": true,
     "lib": ["esnext", "dom"]
   },

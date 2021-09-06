@@ -1,5 +1,10 @@
 import { createStore, Store } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
+import { cloneDeep } from 'lodash';
+
+// TODO: Figure out how to import this from a TypeScript file not in the
+//       public directory.
+const worker = new Worker('./worker.js');
 
 type Purchasable = 'autobrewer';
 type Upgradable = 'autobrewer';
@@ -78,6 +83,8 @@ const getDefaultGameState = () => {
 };
 
 export const store: Store<State> = createStore({
+  // TODO: Enable strict mode
+  // strict: process.env.NODE_ENV !== 'production',
   plugins: [
     createPersistedState({
       key: 'teaShopSave',
@@ -109,6 +116,9 @@ export const store: Store<State> = createStore({
       }
       state.purchases[payload.purchasable].price *= Math.pow(state.purchases[payload.purchasable].increaseRate, payload.amount);
     },
+    setLastNotableTickAt(state, payload: { datetime: number }) {
+      state.lastNotableTickAt = payload.datetime;
+    },
     upgradeUpgradable(state, payload: { upgradable: Upgradable }) {
       state.upgrades[payload.upgradable].level += 1;
       state.upgrades[payload.upgradable].currentOutputMultiplier *= state.upgrades[payload.upgradable].outputMultiplier;
@@ -132,23 +142,8 @@ export const store: Store<State> = createStore({
     }
   },
   actions: {
-    tick(context) {
-      if (context.state.tick % TICKS_PER_SECOND === 0) {
-        let now = Date.now();
-        if (context.state.debugMode && context.state.lastNotableTickAt !== null) {
-          console.log(`${now - context.state.lastNotableTickAt}ms since last notable tick.`);
-          console.log(`${context.state.cupsOfTea} cups of tea`);
-        }
-        context.state.lastNotableTickAt = now;
-      }
-
-      context.commit('tick');
-      context.dispatch('autobrew');
-
-      // Autosave every 30 seconds.
-      if (context.state.tick % (TICKS_PER_SECOND * 30) === 0) {
-        context.commit('triggerSave');
-      }
+    async tick(context) {
+      worker.postMessage({ name: 'tick', state: cloneDeep(context.state) });
     },
     brewTea(context) {
       context.commit('brewTea');
@@ -172,3 +167,12 @@ export const store: Store<State> = createStore({
     }
   }
 });
+
+// Handle incoming messages from the worker as mutations and actions.
+worker.onmessage = (e) => {
+  if (e.data.type === 'mutation') {
+    e.data.payload === null ? store.commit(e.data.method) : store.commit(e.data.method, e.data.payload);
+  } else if (e.data.type === 'action') {
+    e.data.payload === null ? store.dispatch(e.data.method) : store.dispatch(e.data.method, e.data.payload);
+  }
+};
