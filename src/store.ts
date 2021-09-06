@@ -37,13 +37,13 @@ const BASE_VALUES = {
   purchases: {
     autobrewer: {
       price: 10,
-      increaseRate: 1.03
+      increaseRate: 1.01
     }
   },
   upgrades: {
     autobrewer: {
       outputMultiplier: 2.0,
-      costMultiplier: 10,
+      costMultiplier: 5,
       nextUpgradeCost: 100
     }
   }
