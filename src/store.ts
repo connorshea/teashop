@@ -135,10 +135,12 @@ export const store: Store<State> = createStore({
         state.teaPrice -= amount;
       } else {
         state.teaPrice = 0.01;
-        console.log('Unable to decrease price any further.');
+        if (state.debugMode) {
+          console.log('Unable to decrease price any further.');
+        }
       }
     },
-    recalculateRawDemand(state, amount = 1) {
+    recalculateRawDemand(state) {
       state.rawDemand = BASE_VALUES.demand * state.demandBonuses.level * state.demandBonuses.tastiness;
     },
     buyAutobrewer(state, amount = 1) {
@@ -188,9 +190,13 @@ export const store: Store<State> = createStore({
       context.commit('brewTea');
     },
     sellTea(context, { amount }) {
-      console.log(`selling ${amount} cups of tea`);
+      if (context.state.debugMode) {
+        console.log(`Selling ${amount} cups of tea`);
+      }
       if (amount < 0) {
-        console.log('Cannot sell negative amounts of tea.');
+        if (context.state.debugMode) {
+          console.log('Cannot sell negative amounts of tea.');
+        }
         amount = 0;
       }
       context.commit('consumeTea', amount);
