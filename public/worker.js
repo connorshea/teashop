@@ -18,9 +18,12 @@ self.onmessage = (e) => {
     self.postMessage({ type: 'action', method: 'autobrew', payload: undefined });
 
     if (isNotableTick) {
-      let teaSoldThisTick = state.rawDemand / state.teaPrice;
+      let teaSoldThisTick = ((state.rawDemand / 100) * Math.pow((0.8 / state.teaPrice), 1.15));
       // Cap the amount sold to the amount of tea we have right now, to prevent selling more than we have.
       if (teaSoldThisTick > state.cupsOfTea) {
+        if (state.debugMode) {
+          console.log(`${teaSoldThisTick} demanded, more than available`);
+        }
         teaSoldThisTick = state.cupsOfTea;
       }
       // Calculate tea sold this tick and then sell it

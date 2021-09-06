@@ -22,6 +22,10 @@ export type State = {
   teaPerTick: number;
   teaPrice: number;
   rawDemand: number;
+  demandBonuses: {
+    level: number;
+    tastiness: number;
+  };
   purchases: {
     [key in Purchasable]: {
       count: number;
@@ -54,7 +58,8 @@ const BASE_VALUES = {
       costMultiplier: 5,
       nextUpgradeCost: 100
     }
-  }
+  },
+  demand: 100
 };
 
 // The state of the game when the game starts or is manually reset.
@@ -67,7 +72,11 @@ const getDefaultGameState = () => {
     cupsOfTea: 0,
     teaPrice: 2.00,
     teaPerTick: 0,
-    rawDemand: 50,
+    rawDemand: BASE_VALUES.demand,
+    demandBonuses: {
+      level: 1,
+      tastiness: 1
+    },
     purchases: {
       autobrewer: {
         count: 0,
@@ -118,10 +127,10 @@ export const store: Store<State> = createStore({
     spendMoney(state, amount = 1) {
       state.money -= amount;
     },
-    increaseTeaPrice(state, amount = 1) {
+    increaseTeaPrice(state, amount = 0.01) {
       state.teaPrice += amount;
     },
-    decreaseTeaPrice(state, amount = 1) {
+    decreaseTeaPrice(state, amount = 0.01) {
       if (state.teaPrice - amount >= 0.01) {
         state.teaPrice -= amount;
       } else {
@@ -129,11 +138,8 @@ export const store: Store<State> = createStore({
         console.log('Unable to decrease price any further.');
       }
     },
-    increaseRawDemand(state, amount = 1) {
-      state.rawDemand += amount;
-    },
-    decreaseRawDemand(state, amount = 1) {
-      state.rawDemand -= amount;
+    recalculateRawDemand(state, amount = 1) {
+      state.rawDemand = BASE_VALUES.demand * state.demandBonuses.level * state.demandBonuses.tastiness;
     },
     buyAutobrewer(state, amount = 1) {
       state.purchases.autobrewer.count += amount;
@@ -183,6 +189,10 @@ export const store: Store<State> = createStore({
     },
     sellTea(context, { amount }) {
       console.log(`selling ${amount} cups of tea`);
+      if (amount < 0) {
+        console.log('Cannot sell negative amounts of tea.');
+        amount = 0;
+      }
       context.commit('consumeTea', amount);
       context.commit('earnMoney', amount * context.state.teaPrice);
     },

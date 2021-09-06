@@ -18,7 +18,7 @@ export default defineComponent({
     const money = computed(() => store.state.money);
     const teaPrice = computed(() => store.state.teaPrice);
     const roundedTeaPrice = computed(() => store.state.teaPrice.toFixed(2));
-    const demand = computed(() => (store.state.rawDemand / (store.state.teaPrice * 100)).toFixed(2));
+    const demand = computed(() => ((store.state.rawDemand / 100) * Math.pow((0.8 / store.state.teaPrice), 1.15)).toFixed(2));
 
     const brewTea = () => store.dispatch('brewTea');
     const increaseTeaPrice = (amount: number) => store.commit('increaseTeaPrice', amount);
@@ -72,10 +72,10 @@ export default defineComponent({
     <button type="button" @click="brewTea">
       Brew a cup of tea
     </button>
-    <button type="button" @click="increaseTeaPrice(0.01)">
+    <button type="button" @click="increaseTeaPrice(0.10)">
       Increase Price of Tea
     </button>
-    <button type="button" :disabled="teaPrice - 0.01 < 0.01" @click="decreaseTeaPrice(0.01)">
+    <button type="button" :disabled="teaPrice - 0.01 < 0.01" @click="decreaseTeaPrice(0.10)">
       Decrease Price of Tea
     </button>
     <button type="button" :disabled="cupsOfTea < Math.ceil(autobrewerCost)" @click="buyAutobrewer(1)">
