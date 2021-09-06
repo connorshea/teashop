@@ -171,8 +171,8 @@ export const store: Store<State> = createStore({
 // Handle incoming messages from the worker as mutations and actions.
 worker.onmessage = (e) => {
   if (e.data.type === 'mutation') {
-    e.data.payload === null ? store.commit(e.data.method) : store.commit(e.data.method, e.data.payload);
+    typeof e.data.payload === 'undefined' ? store.commit(e.data.method) : store.commit(e.data.method, e.data.payload);
   } else if (e.data.type === 'action') {
-    e.data.payload === null ? store.dispatch(e.data.method) : store.dispatch(e.data.method, e.data.payload);
+    typeof e.data.payload === 'undefined' ? store.dispatch(e.data.method) : store.dispatch(e.data.method, e.data.payload);
   }
 };
