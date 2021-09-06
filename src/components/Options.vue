@@ -93,6 +93,7 @@ export default defineComponent({
         {{ debugMode === true ? 'Disable Debug Mode' : 'Enable Debug Mode' }}
       </button>
     </div>
+    <p>Game by Connor Shea | <a href="https://github.com/connorshea/teashop">GitHub</a></p>
   </div>
 </template>
 
