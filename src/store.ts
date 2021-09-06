@@ -83,8 +83,7 @@ const getDefaultGameState = () => {
 };
 
 export const store: Store<State> = createStore({
-  // TODO: Enable strict mode
-  // strict: process.env.NODE_ENV !== 'production',
+  strict: !import.meta.env.PROD,
   plugins: [
     createPersistedState({
       key: 'teaShopSave',
