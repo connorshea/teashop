@@ -27,15 +27,8 @@ export default defineComponent({
     const buyAutobrewer = (amount: number) => store.dispatch('buyAutobrewer', { amount: amount });
     const upgradeAutobrewer = () => store.dispatch('upgradeUpgradable', { upgradable: 'autobrewer' });
 
-    const updateGameState = () => {
-      if (store.state.debugMode) {
-        console.log(`${cupsOfTea.value} cups of tea, ${roundedCupsOfTea.value} rounded cups of tea`);
-      }
-      store.dispatch('tick');
-    };
-
-    // This probably won't scale later. YOLO.
-    setInterval(updateGameState, TICK_RATE);
+    // Trigger startup so the ticking happens in the background worker process.
+    store.dispatch('startup');
 
     return {
       cupsOfTea,

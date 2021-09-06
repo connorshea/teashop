@@ -142,8 +142,13 @@ export const store: Store<State> = createStore({
     }
   },
   actions: {
+    // Have the worker startup in the background and begin ticking. 
+    async startup(_context) {
+      worker.postMessage({ name: 'startup', tick_rate: TICK_RATE });
+    },
+    // Handle ticking logic asyncronously from the worker.
     async tick(context) {
-      worker.postMessage({ name: 'tick', state: cloneDeep(context.state) });
+      worker.postMessage({ name: 'tick', state: cloneDeep(context.state), ticks_per_second: TICKS_PER_SECOND });
     },
     brewTea(context) {
       context.commit('brewTea');
