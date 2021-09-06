@@ -13,7 +13,7 @@
  *     pluralize(1, 'octopus', 'octopi'); // => octopus
  *     pluralize(2, 'octopus', 'octopi'); // => octopi
  */
- export const pluralize = (amount: number, singular: string, plural: string | null = null): string => {
+export const pluralize = (amount: number, singular: string, plural: string | null = null): string => {
   if (plural === null) {
     plural = `${singular}s`;
   }

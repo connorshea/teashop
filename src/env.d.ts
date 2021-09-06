@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 import { ComponentCustomProperties } from 'vue';
+import { HumanizeOptions } from './humanize';
 
 declare module '*.vue' {
   import { DefineComponent } from 'vue'
@@ -12,7 +13,8 @@ declare module '*.vue' {
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $filters: {
-      pluralize(amount: number, singular: string, plural: string | null = null): string
+      pluralize(amount: number, singular: string, plural: string | null = null): string,
+      humanize(value: number, options?: Partial<HumanizeOptions>): string
     }
   }
 }

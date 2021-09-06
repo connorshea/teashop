@@ -56,8 +56,8 @@ export default defineComponent({
 <template>
   <h1>Tea Shop</h1>
 
-  <p>{{ roundedCupsOfTea }} {{ $filters.pluralize(roundedCupsOfTea, 'Cup') }} of Tea</p>
-  <p>({{ teaPerSecond }} {{ $filters.pluralize(teaPerSecond, 'cup') }}/sec)</p>
+  <p>{{ $filters.humanize(roundedCupsOfTea, { short: true }) }} {{ $filters.pluralize(roundedCupsOfTea, 'Cup') }} of Tea</p>
+  <p>({{ $filters.humanize(teaPerSecond, { short: true }) }} {{ $filters.pluralize(teaPerSecond, 'cup') }}/sec)</p>
   <p v-if="autobrewerCount > 0">{{ autobrewerCount }} {{ $filters.pluralize(autobrewerCount, 'Autobrewer') }}</p>
 
   <div class="buttons">
@@ -65,10 +65,10 @@ export default defineComponent({
       Brew a cup of tea
     </button>
     <button type="button" :disabled="cupsOfTea < Math.ceil(autobrewerCost)" @click="buyAutobrewer(1)">
-      Buy an autobrewer ({{ Math.round(autobrewerCost) }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
+      Buy an autobrewer ({{ $filters.humanize(Math.round(autobrewerCost), { short: true }) }} {{ $filters.pluralize(autobrewerCost, 'cup') }})
     </button>
     <button type="button" :disabled="cupsOfTea < Math.ceil(multipleAutobrewerCost(10))" @click="buyAutobrewer(10)">
-      Buy 10 autobrewers ({{ multipleAutobrewerCost(10) }} {{ $filters.pluralize(multipleAutobrewerCost(10), 'cup') }})
+      Buy 10 autobrewers ({{ $filters.humanize(multipleAutobrewerCost(10), { short: true }) }} {{ $filters.pluralize(multipleAutobrewerCost(10), 'cup') }})
     </button>
   </div>
 
@@ -77,7 +77,7 @@ export default defineComponent({
     <h4>Upgrades</h4>
     <div class="buttons">
       <button type="button" :disabled="cupsOfTea < Math.ceil(autobrewerUpgradeCost)" @click="upgradeAutobrewer">
-        Upgrade autobrewers ({{ autobrewerUpgradeCost }} {{ $filters.pluralize(autobrewerUpgradeCost, 'cup') }})
+        Upgrade autobrewers ({{ $filters.humanize(autobrewerUpgradeCost, { short: true }) }} {{ $filters.pluralize(autobrewerUpgradeCost, 'cup') }})
       </button>
     </div>
   </div>
