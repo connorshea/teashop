@@ -17,8 +17,11 @@ export type State = {
   lastSaveAt: number | null;
   lastNotableTickAt: number | null;
   tick: number;
+  money: number;
   cupsOfTea: number;
   teaPerTick: number;
+  teaPrice: number;
+  rawDemand: number;
   purchases: {
     [key in Purchasable]: {
       count: number;
@@ -60,8 +63,11 @@ const getDefaultGameState = () => {
     lastSaveAt: null,
     lastNotableTickAt: null,
     tick: 0,
+    money: 0,
     cupsOfTea: 0,
+    teaPrice: 0.30,
     teaPerTick: 0,
+    rawDemand: 30,
     purchases: {
       autobrewer: {
         count: 0,
@@ -106,10 +112,33 @@ export const store: Store<State> = createStore({
     consumeTea(state, amount = 1) {
       state.cupsOfTea -= amount;
     },
+    earnMoney(state, amount = 1) {
+      state.money += amount;
+    },
+    spendMoney(state, amount = 1) {
+      state.money -= amount;
+    },
+    increaseTeaPrice(state, amount = 1) {
+      state.teaPrice += amount;
+    },
+    decreaseTeaPrice(state, amount = 1) {
+      if (state.teaPrice - amount >= 0.01) {
+        state.teaPrice -= amount;
+      } else {
+        state.teaPrice = 0.01;
+        console.log('Unable to decrease price any further.');
+      }
+    },
+    increaseRawDemand(state, amount = 1) {
+      state.rawDemand += amount;
+    },
+    decreaseRawDemand(state, amount = 1) {
+      state.rawDemand -= amount;
+    },
     buyAutobrewer(state, amount = 1) {
       state.purchases.autobrewer.count += amount;
     },
-    increasePrice(state, payload: { purchasable: Purchasable, amount: number | null }) {
+    increasePurchasablePrice(state, payload: { purchasable: Purchasable, amount: number | null }) {
       if (payload.amount === null) {
         payload.amount = 1;
       }
@@ -152,6 +181,11 @@ export const store: Store<State> = createStore({
     brewTea(context) {
       context.commit('brewTea');
     },
+    sellTea(context, { amount }) {
+      console.log(`selling ${amount} cups of tea`);
+      context.commit('consumeTea', amount);
+      context.commit('earnMoney', amount * context.state.teaPrice);
+    },
     upgradeUpgradable(context, { upgradable }: { upgradable: Upgradable }) {
       context.commit('consumeTea', context.state.upgrades[upgradable].nextUpgradeCost);
       context.commit('upgradeUpgradable', { upgradable: upgradable });
@@ -161,7 +195,7 @@ export const store: Store<State> = createStore({
       let increaseRate = context.state.purchases.autobrewer.increaseRate;
       let price = context.state.purchases.autobrewer.price * (1 - Math.pow(increaseRate, amount)) / (1 - increaseRate);
       context.commit('consumeTea', price);
-      context.commit('increasePrice', { purchasable: 'autobrewer', amount: amount });
+      context.commit('increasePurchasablePrice', { purchasable: 'autobrewer', amount: amount });
       context.commit('buyAutobrewer', amount);
       context.commit('recalculateTeaPerTick');
     },
